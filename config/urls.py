@@ -18,8 +18,15 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from Users import views
+from Users.views import SignupView, LoginView, LogoutView, CountriesListView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    ] 
-+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    path('signup/', SignupView.as_view(), name='signup'),
+    path('api/signup/', SignupView.as_view(), name='api-signup'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('countries/', CountriesListView.as_view(), name='countries-list'),
+]
 

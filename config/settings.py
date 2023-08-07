@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'Restaurants',
     'Reviews',
     'rest_framework',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -78,7 +77,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -161,3 +160,30 @@ try:
     from .local_settings import *
 except ImportError:
     pass
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+from django.conf import settings
+
+JWT_AUTH = {
+    'JWT_SECRET_KEY': settings.SECRET_KEY,
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': timedelta(seconds=3600),  # 토큰 만료 시간 (예: 1시간)
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=7),  # 리프레시 토큰 만료 시간 (예: 7일)
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # 토큰 만료 시간 (예: 1시간)
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=7),  # 리프레시 토큰 만료 시간 (예: 7일)
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),  # 슬라이딩 토큰 만료 시간 (예: 30일)
+    'SLIDING_TOKEN_REFRESH_LIFETIME_ALLOW_RENEWAL': True,
+    'SLIDING_TOKEN_REFRESH_LIFETIME_RENEWAL_DELTA': timedelta(days=1),
+}
+
+AUTH_USER_MODEL = 'Users.MyUser'

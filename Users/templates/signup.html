@@ -1,0 +1,77 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>회원가입</title>
+</head>
+<body>
+    <h1>회원가입</h1>
+    <form action="/api/signup/" method="post">
+        {% csrf_token %}
+        <label for="signup-name">이름:</label>
+        <input type="text" id="signup-name" name="name" required><br><br>
+
+        <label for="signup-password">비밀번호:</label>
+        <input type="password" id="signup-password" name="password" required><br><br>
+
+        <label for="signup-country">나라:</label>
+        <select id="signup-country" name="country" required>
+            <option value="" disabled selected>나라 선택</option>
+
+            <option value="대한민국">Republic of Korea</option>
+            <option value="미국">United States of America</option>
+            <option value="싱가포르">Singapore</option>
+            <option value="영국">United Kingdom</option>
+            <option value="독일">Germany</option>
+            <option value="프랑스">France</option>
+            <option value="스위스">Swiss</option>
+            <option value="덴마크">Denmark</option>
+            <option value="네덜란드">Netherlands</option>
+            <option value="캐나다">Canada</option>
+            <option value="일본">Japan</option>
+            <option value="중국">China</option>
+            
+        </select><br><br>
+
+        <button type="submit">가입하기</button>
+    </form>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>회원가입</title>
+</head>
+<body>
+    <h1>회원가입</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="signup-name">이름:</label>
+        <input type="text" id="signup-name" name="name" required><br><br>
+
+        <label for="signup-password">비밀번호:</label>
+        <input type="password" id="signup-password" name="password" required><br><br>
+
+        <label for="signup-country">나라:</label>
+        <select id="signup-country" name="country" required>
+            <option value="" disabled selected>나라 선택</option>
+            <option value="대한민국">Republic of Korea</option>
+            <option value="미국">United States of America</option>
+            <option value="싱가포르">Singapore</option>
+            <option value="영국">United Kingdom</option>
+            <option value="독일">Germany</option>
+            <option value="프랑스">France</option>
+            <option value="스위스">Swiss</option>
+            <option value="덴마크">Denmark</option>
+            <option value="네덜란드">Netherlands</option>
+            <option value="캐나다">Canada</option>
+            <option value="일본">Japan</option>
+            <option value="중국">China</option>
+        </select><br><br>
+
+        <button type="submit">가입하기</button>
+    </form>
+</body>
+</html>
+
