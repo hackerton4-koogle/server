@@ -35,7 +35,7 @@ class SignupView(APIView):
         payload = {'user_id': user.id, 'name': user.name, 'country': user.country} # type: ignore
         token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
         
-        # 회원가입이 완료되었다는 문구와 메인페이지로 가기 버튼을 포함한 페이지 렌더링
+        # 회원가입이 완료되었다는 문구, 메인페이지로 가기 버튼 있는 페이지로
         context = {'name': name}
         return render(request, 'signup_complete.html', context)
 
@@ -57,6 +57,5 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        # 로그아웃은 클라이언트 측에서 JWT를 삭제하면 됩니다.
         logout(request)
         return Response({'message': 'Logged out.'})
