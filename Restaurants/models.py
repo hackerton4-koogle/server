@@ -27,6 +27,7 @@ class Restaurant(models.Model):
     latitude = models.FloatField(max_length=100, null=False)
     longitude= models.FloatField(max_length=100, null=False)
     koogle_ranking = models.IntegerField(verbose_name="koogle_ranking")
+    #visit_count = models.PositiveIntegerField(default=0)
     def __str__(self):
         return self.name
 
