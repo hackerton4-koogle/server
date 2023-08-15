@@ -156,6 +156,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_USER_MODEL = 'Users.User'
+
 # 로컬 세팅 추가
 try:
     from .local_settings import *
