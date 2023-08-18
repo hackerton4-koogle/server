@@ -452,7 +452,7 @@ class ReviewListInfoAPIView(ListCreateAPIView):
         except Restaurant.DoesNotExist:
             raise NotFound("Restaurant not found")
         
-        res['restaurnts_info'] = 
+        # res['restaurnts_info'] = 
         
         naver_user, _ = User.objects.get_or_create(username='naver', is_staff=True)
         user_users = User.objects.filter(is_staff=False)
