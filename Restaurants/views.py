@@ -397,7 +397,7 @@ class RestaurantsBaseAPIView(APIView):
 
         # 번역 완료
         open_close_data ={}
-        open_close = OpenHours.objects.all()
+        open_close = OpenHours.objects.filter(restaurant = restaurant_base)
         for open_hours in open_close:
             restaurant_name = open_hours.restaurant.name
             day =open_hours.day
