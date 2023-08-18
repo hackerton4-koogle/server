@@ -26,7 +26,7 @@ class Review(models.Model):
         reviews_shortened = [review["content"][:10]+"..." for review in reviews]
         print(f'update_restaurant_reviews({restaurant_instance}, {reviews_shortened})')
 
-        naver_user, _ = get_user_model().objects.get_or_create(is_staff=True)
+        naver_user, _ = get_user_model().objects.get_or_create(username='naver', is_staff=True)
         existing = cls.objects.filter(user=naver_user, restaurant=restaurant_instance)
         incoming = reviews
         
