@@ -12,17 +12,21 @@ class BlueRibbonSurveryScraper:
             response = requests.get(base_url.format(page))
             if response.status_code == 200:
                 data = response.json()
-                if not data["_embedded"]["restaurants"]:
-                    break
+
+                try:
+                    data["_embedded"]["restaurants"]
+                except KeyError:
+                    return restaurant_list
 
                 for restaurant_data in data["_embedded"]["restaurants"]:
                     restaurant = {
                         "name": restaurant_data["headerInfo"]["nameKR"],
                         "phone": restaurant_data["defaultInfo"]["phone"],
                         "description": restaurant_data["review"]["review"],
-                        "image_url": f"https://www.bluer.co.kr{restaurant_data['firstImage']['url']}"
+                        # "image_url": f"https://www.bluer.co.kr{restaurant_data['firstImage']['url']}"
                     }
                     restaurant_list.append(restaurant)
+                
 
                 page += 1
             else:
@@ -31,8 +35,6 @@ class BlueRibbonSurveryScraper:
 
         return restaurant_list
 
-scraper = BlueRibbonSurveryScraper()
-restaurant_list = scraper.scrape()
-
-for restaurant in restaurant_list:
-    print(restaurant)
+if __name__ == "__main__":
+    scraper = BlueRibbonSurveryScraper()
+    restaurant_list = scraper.scrape()
