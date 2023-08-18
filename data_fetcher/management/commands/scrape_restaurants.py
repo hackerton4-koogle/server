@@ -4,7 +4,7 @@ import time
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 
-from data_fetcher.source_scrapers import TasteOfSeoulScraper
+from data_fetcher.source_scrapers import BlueRibbonSurveryScraper, TasteOfSeoulScraper
 from data_fetcher.naver_scrapers import NaverScraper
 from data_fetcher.utils import NestedDictConverter, download_img
 
@@ -227,7 +227,8 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         sources = [
-            TasteOfSeoulScraper, 
+            # TasteOfSeoulScraper, 
+            BlueRibbonSurveryScraper
         ]
 
         all_restaurants = []
