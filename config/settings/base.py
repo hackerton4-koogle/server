@@ -70,7 +70,6 @@ THIRD_PARTY_APPS=[
 
 
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware', # 정적 파일 서빙 위한 미들웨어 - 최상단 위치
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -79,8 +78,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
-    #"debug_toolbar.middleware.DebugToolbarMiddleware",
 
 ]
 AUTHENTICATION_BACKENDS = [

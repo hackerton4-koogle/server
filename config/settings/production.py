@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False
 ALLOWED_HOSTS = [
-
+    '*',
 ]
 
 DJANGO_APPS += [
@@ -28,7 +28,8 @@ DATABASES = {
 }
 
 STATIC_ROOT = BASE_DIR / 'static'
-LOG_FILE = '/home/ubuntu/server/log/django.log'
+LOG_DIR = BASE_DIR / 'log'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -45,7 +46,7 @@ LOGGING = {
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.TimedRotatingFileHandler',
-            'filename': LOG_FILE,
+            'filename': str(LOG_DIR / 'django.log'),
             'when': "midnight",  # 매 자정마다
             'backupCount': 31,
             'formatter': 'standard',
