@@ -310,7 +310,7 @@ class FoodSelectedRestaurantsAPIView(APIView):
             food_ids =list(map(int, food_ids.split(",")))
             restaurants_list = []
             for food_ids_list in food_ids:
-                selected_restaurants = Restaurant.objects.filter(food__id=food_ids_list)
+                selected_restaurants = Restaurant.objects.filter(restaurant_food_restaurant__food__id=food_ids_list)
                 for rest in selected_restaurants:
                     restaurants_list.append(rest)
             restaurants_list = list(set(restaurants_list))
