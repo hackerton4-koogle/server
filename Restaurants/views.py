@@ -326,20 +326,20 @@ class FoodSelectedRestaurantsAPIView(APIView):
                     each_restaurants.name = translated_restaurants_name[each_restaurants.name]
                 else:
                     each_restaurants.name = translate_and_extract(each_restaurants.name)
-                restaurant_data["name"] : each_restaurants.name
+                restaurant_data["name"] = each_restaurants.name
                 each_restaurants.address = translate_and_extract(each_restaurants.address)
-                restaurant_data["address"] : each_restaurants.address
-                restaurant_data["phone"] : each_restaurants.phone
-                restaurant_data["image"] : each_restaurants.image.url
-                restaurant_data["koogle"] : each_restaurants.koogle_ranking
+                restaurant_data["address"] = each_restaurants.address
+                restaurant_data["phone"] = each_restaurants.phone
+                restaurant_data["image"] = each_restaurants.image.url
+                restaurant_data["koogle"] = each_restaurants.koogle_ranking
                 current_latitude = 37.5508
                 current_longtitude =126.9255
             #계산
                 restaurant_latitude = each_restaurants.latitude
                 restaurant_longtitude = each_restaurants.longitude
                 distance = geopy.distance.distance((current_latitude,current_longtitude), (restaurant_latitude,restaurant_longtitude)).m                
-                restaurant_data["distance"] : distance
-                restaurant_data["다음페이지에서 넘겨줘야하는 레스토랑 이름"] : a
+                restaurant_data["distance"] = distance
+                restaurant_data["다음페이지에서 넘겨줘야하는 레스토랑 이름"] = a
                 data[each_restaurants.name] = restaurant_data
 
             return Response({"data" : data})
