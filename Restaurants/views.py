@@ -308,10 +308,13 @@ class FoodSelectedRestaurantsAPIView(APIView):
         def get(self, request, food_ids):
             print(food_ids)
             food_ids =list(map(int, food_ids.split(",")))
+            print(food_ids)
             restaurants_list = []
             for food_ids_list in food_ids:
                 selected_restaurants = Restaurant.objects.filter(restaurant_food_restaurant__food__id=food_ids_list)
+                print(selected_restaurants)
                 for rest in selected_restaurants:
+                    print(rest)
                     restaurants_list.append(rest)
             restaurants_list = list(set(restaurants_list))
             # 레스토랑 이름, 주소, 번호, 거리, 쿠글
