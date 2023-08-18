@@ -306,9 +306,9 @@ class FoodSelectedRestaurantsAPIView(APIView):
         serializers = FoodSelectedRestaurantSerializer
         permission_classes = [AllowAny]
         def get(self, request, food_ids):
-            print(food_ids)
+            print(food_ids) #123
             food_ids =list(map(int, food_ids.split(",")))
-            print(food_ids)
+            print(food_ids) #[123]
             restaurants_list = []
             for food_ids_list in food_ids:
                 selected_restaurants = Restaurant.objects.filter(restaurant_food_restaurant__food__id=food_ids_list)
@@ -336,7 +336,7 @@ class FoodSelectedRestaurantsAPIView(APIView):
                 current_longtitude =126.9255
             #계산
                 restaurant_latitude = each_restaurants.latitude
-                restaurant_longtitude = each_restaurants.longtitude
+                restaurant_longtitude = each_restaurants.longitude
                 distance = geopy.distance.distance((current_latitude,current_longtitude), (restaurant_latitude,restaurant_longtitude)).m                
                 restaurant_data["distance"] : distance
                 restaurant_data["다음페이지에서 넘겨줘야하는 레스토랑 이름"] : a
