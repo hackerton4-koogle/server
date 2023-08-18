@@ -158,9 +158,8 @@ class Command(BaseCommand):
                     continue
                     
                 restaurant['naver'].update(reviews_likes)
-                
-                # wait 5 seconds - shorter time makes naver mad
-                time.sleep(5)
+
+                break
         
         restaurant_instances = []
 
