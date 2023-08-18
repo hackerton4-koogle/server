@@ -306,11 +306,15 @@ class FoodSelectedRestaurantsAPIView(APIView):
         serializers = FoodSelectedRestaurantSerializer
         permission_classes = [AllowAny]
         def get(self, request, food_ids):
+            print(food_ids) #123
             food_ids =list(map(int, food_ids.split(",")))
+            print(food_ids) #[123]
             restaurants_list = []
             for food_ids_list in food_ids:
-                selected_restaurants = Restaurant.objects.filter(food__id=food_ids_list)
+                selected_restaurants = Restaurant.objects.filter(restaurant_food_restaurant__food__id=food_ids_list)
+                print(selected_restaurants)
                 for rest in selected_restaurants:
+                    print(rest)
                     restaurants_list.append(rest)
             restaurants_list = list(set(restaurants_list))
             # 레스토랑 이름, 주소, 번호, 거리, 쿠글
@@ -322,20 +326,21 @@ class FoodSelectedRestaurantsAPIView(APIView):
                     each_restaurants.name = translated_restaurants_name[each_restaurants.name]
                 else:
                     each_restaurants.name = translate_and_extract(each_restaurants.name)
-                restaurant_data["name"] : each_restaurants.name
+                restaurant_data["name"] = each_restaurants.name
                 each_restaurants.address = translate_and_extract(each_restaurants.address)
-                restaurant_data["address"] : each_restaurants.address
-                restaurant_data["phone"] : each_restaurants.phone
-                restaurant_data["image"] : each_restaurants.image
-                restaurant_data["koogle"] : each_restaurants.koogle_ranking
+                restaurant_data["address"] = each_restaurants.address
+                restaurant_data["phone"] = each_restaurants.phone
+
+                restaurant_data["image"] = ""
+                restaurant_data["koogle"] = each_restaurants.koogle_ranking
                 current_latitude = 37.5508
                 current_longtitude =126.9255
             #계산
                 restaurant_latitude = each_restaurants.latitude
-                restaurant_longtitude = each_restaurants.longtitude
+                restaurant_longtitude = each_restaurants.longitude
                 distance = geopy.distance.distance((current_latitude,current_longtitude), (restaurant_latitude,restaurant_longtitude)).m                
-                restaurant_data["distance"] : distance
-                restaurant_data["다음페이지에서 넘겨줘야하는 레스토랑 이름"] : a
+                restaurant_data["distance"] = distance
+                restaurant_data["다음페이지에서 넘겨줘야하는 레스토랑 이름"] = a
                 data[each_restaurants.name] = restaurant_data
 
             return Response({"data" : data})
@@ -392,12 +397,17 @@ class RestaurantsBaseAPIView(APIView):
 
         # 번역 완료
         open_close_data ={}
-        open_close = OpenHours.objects.all()
+        open_close = OpenHours.objects.filter(restaurant = restaurant_base)
         for open_hours in open_close:
             restaurant_name = open_hours.restaurant.name
             day =open_hours.day
-            open_time = open_hours.open_time.strftime('%H:%M %p')
-            close_time = open_hours.close_time.strftime('%H:%M %p')
+            if open_hours.open_time and open_hours.close_time:
+                open_time = open_hours.open_time.strftime('%H:%M %p')
+                close_time = open_hours.close_time.strftime('%H:%M %p')
+            else:
+                open_time = 'N/A'  # 또는 필요한 다른 메시지
+                close_time = 'N/A'
+            
             day =translate_and_extract(day)
             open_close_data[day] ={
                 'open_time' : open_time,
@@ -424,11 +434,14 @@ class RestaurantsBaseAPIView(APIView):
         menus=[]
         for detail in menu_detail:
             detail.name = translate_and_extract(detail.name)
+            detail.image.url = '' if getattr(detail.image, 'url', False) else detail.image.url
             menus.append({
                 'name' : detail.name,
                 'price': detail.price,
-                'image': detail.image,
+                'image' : "",
             })
+
+
 
         
         # 이미지 추가 예정
