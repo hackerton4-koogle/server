@@ -8,6 +8,9 @@ client_id = os.getenv('client_id')
 client_secret = os.getenv('client_secret')
 
 def translate_and_extract(word):
+    if not word: 
+        return ''
+
     encText = urllib.parse.quote(word)  # encText는 번역 요청 텍스트
     data = "source=ko&target=en&text=" + encText
     url = "https://openapi.naver.com/v1/papago/n2mt"
