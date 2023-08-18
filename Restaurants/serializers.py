@@ -10,4 +10,12 @@ class RestaurantBaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CategoryFoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Food
+        fields = '__all__'
 
+class FoodSelectedRestaurantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Restaurant
+        fields = '__all__'
