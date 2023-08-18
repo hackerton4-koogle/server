@@ -1,44 +1,34 @@
+import json
 import os
-import urllib.parse
+import sys
 import urllib.request
-from dotenv import load_dotenv
 
-load_dotenv()
-client_id = os.getenv('client_id')
-client_secret = os.getenv('client_secret')
+from config.settings.base import get_secret
 
-def translate_and_extract(word):
-    if not word: 
+NCP_CLIENT_ID = "kdcgbbawp7"
+NCP_CLIENT_SECRET = "ncyq8gM4gtRRjgWy8aKm2Qi3vxzTeEdDFN9eRO1c"
+
+def translate_and_extract(sentence, target_language='en'):
+    if not sentence: 
         return ''
     
-    return str(word)
-
-    encText = urllib.parse.quote(word)  # encText는 번역 요청 텍스트
+    encText = urllib.parse.quote(str(sentence))
     data = "source=ko&target=en&text=" + encText
-    url = "https://openapi.naver.com/v1/papago/n2mt"
+    url = "https://naveropenapi.apigw.ntruss.com/nmt/v1/translation"
     request = urllib.request.Request(url)
-    request.add_header("X-Naver-Client-Id", client_id)
-    request.add_header("X-Naver-Client-Secret", client_secret)
+    request.add_header("X-NCP-APIGW-API-KEY-ID",NCP_CLIENT_ID)
+    request.add_header("X-NCP-APIGW-API-KEY",NCP_CLIENT_SECRET)
     response = urllib.request.urlopen(request, data=data.encode("utf-8"))
     rescode = response.getcode()
-
-    if rescode == 200:
-        response_body = response.read().decode('utf-8')
-        translated_text = extract_translated_text(response_body)
-        if translated_text:
-            return(translated_text)
-        else:
-            return f"Translated text not found."
+    if(rescode==200):
+        response_body = response.read()
+        response_json = json.loads(str(response_body.decode('utf-8')))
+        return response_json['message']['result']['translatedText']
     else:
-        return f"Error Code: {rescode}"
+        print('Error on translation: ' + rescode)
+        return sentence
+    
 
-def extract_translated_text(json_response):
-    # "translatedText" 문자열 찾기
-    translated_text_index = json_response.find('"translatedText":"')
-    if translated_text_index != -1:
-        start_index = translated_text_index + len('"translatedText":"')
-        end_index = json_response.find('"', start_index)
-        if end_index != -1:
-            translated_text = json_response[start_index:end_index]
-            return translated_text
-    return None
+if __name__ == '__main__':
+    result = translate_and_extract('파파고는 최고의 번역기입니다.')
+    print(result)
