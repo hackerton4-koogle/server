@@ -5,7 +5,7 @@ import re
 class TasteOfSeoulScraper:
     def scrape_page(self, base_url, page):
         res = []
-
+        
         places = page.find('ul', class_='listType1').find_all('li')
         for place in places:
             category = place.find(class_='cate').text
@@ -35,6 +35,9 @@ class TasteOfSeoulScraper:
         }
         base_url = 'https://tasteofseoul.visitseoul.net/'
         url = base_url + '_subpage/kor/restaurants/list.php'
+
+        
+        
 
         res = []
 

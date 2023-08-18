@@ -13,10 +13,7 @@ import json
 from pathlib import Path
 from datetime import timedelta
 import os
-from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
-import pymysql
-pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -32,6 +29,7 @@ def get_secret(setting, secret_dict=secrets):
     except KeyError:
         error_msg = f'Set the {setting} environment variable'
         raise ImproperlyConfigured(error_msg)
+    
 SECRET_KEY = get_secret('SECRET_KEY')
 
 
@@ -72,6 +70,7 @@ THIRD_PARTY_APPS=[
 
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware', # 정적 파일 서빙 위한 미들웨어 - 최상단 위치
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -80,7 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', ## 이거 추가!!
+    
     #"debug_toolbar.middleware.DebugToolbarMiddleware",
 
 ]
@@ -137,9 +136,12 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-
-
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
@@ -170,7 +172,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -185,23 +186,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
 # Media 관련 설정
 MEDIA_URL = '/media/' # 미디어 파일 URL
 MEDIA_ROOT = BASE_DIR / 'media' # 미디어 파일 저장 위치
 
 INTERNAL_IPS = []
-
-###########################AWS
-AWS_ACCESS_KEY_ID = 'AKIAZMWRHKCCU4DO7H66' # .csv 파일에 있는 내용을 입력 Access key ID
-AWS_SECRET_ACCESS_KEY = 'i6aFFxWWe+1u55mhSXuz5Rb7P1kwmDfpYcBCpMvI' # .csv 파일에 있는 내용을 입력 Secret access key
-AWS_REGION = 'ap-northeast-2'
-
-###S3 Storages
-AWS_STORAGE_BUCKET_NAME = 'sunghyun1356' # 설정한 버킷 이름
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME,AWS_REGION)
-AWS_S3_OBJECT_PARAMETERS = {
-    'CacheControl': 'max-age=86400',
-}
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
