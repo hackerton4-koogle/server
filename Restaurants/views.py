@@ -330,7 +330,7 @@ class FoodSelectedRestaurantsAPIView(APIView):
                 each_restaurants.address = translate_and_extract(each_restaurants.address)
                 restaurant_data["address"] = each_restaurants.address
                 restaurant_data["phone"] = each_restaurants.phone
-                restaurant_data["image"] = each_restaurants.image.url
+                restaurant_data["image"] = '' if getattr(each_restaurants.image, 'url', False) else each_restaurants.image.url
                 restaurant_data["koogle"] = each_restaurants.koogle_ranking
                 current_latitude = 37.5508
                 current_longtitude =126.9255
@@ -428,6 +428,7 @@ class RestaurantsBaseAPIView(APIView):
         menus=[]
         for detail in menu_detail:
             detail.name = translate_and_extract(detail.name)
+            detail.image.url = '' if getattr(detail.image, 'url', False) else detail.image.url
             menus.append({
                 'name' : detail.name,
                 'price': detail.price,
