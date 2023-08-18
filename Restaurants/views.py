@@ -401,8 +401,13 @@ class RestaurantsBaseAPIView(APIView):
         for open_hours in open_close:
             restaurant_name = open_hours.restaurant.name
             day =open_hours.day
-            open_time = open_hours.open_time.strftime('%H:%M %p')
-            close_time = open_hours.close_time.strftime('%H:%M %p')
+            if open_hours.open_time and open_hours.close_time:
+                open_time = open_hours.open_time.strftime('%H:%M %p')
+                close_time = open_hours.close_time.strftime('%H:%M %p')
+            else:
+                open_time = 'N/A'  # 또는 필요한 다른 메시지
+                close_time = 'N/A'
+            
             day =translate_and_extract(day)
             open_close_data[day] ={
                 'open_time' : open_time,
