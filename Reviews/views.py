@@ -356,21 +356,15 @@ class ReviewListInfoCountryAPIView(ListCreateAPIView):
 
         return Response(data)
 
-    def get_review_data(self, reviews, restaurant_base):
+    def get_review_data(self, reviews):
         
         review_data = []
         for review in reviews:
-            user_reviews = Review.objects.filter(user=review.user)
-            total_review_count = user_reviews.count()
-            total_image_count = sum(1 for r in user_reviews if r.image_1 or r.image_2 or r.image_3)
-            review_likes = Review_Likes.objects.filter(review=review)
+            review_likes = Review_Likes.objects.filter(review=review).select_related('likes')
             likes_names = [rl.likes.likes for rl in review_likes]
             data = {
-                
                 'username': review.user.username,
                 'star': review.star,
-                'total_review_count': total_review_count,
-                'total_image_count': total_image_count,
                 'content': review.content,
                 'country': review.user.country.name if review.user.country else None,
                 'created_at' :  self.calculate_time(review),
@@ -450,32 +444,33 @@ class ReviewListInfoAPIView(ListCreateAPIView):
         elif order_by == 'lowest':
             return self.queryset.order_by('star')
 
-    def list(self, request, restaurant_name, *args, **kwargs):
-        data = dict()
+    def list(self, request, restaurant_name, order_by, *args, **kwargs):
+        res = {}
+
         try:
             restaurant_base = get_object_or_404(Restaurant, name=restaurant_name)
         except Restaurant.DoesNotExist:
             raise NotFound("Restaurant not found")
         
-        try:
-            naver_users = User.objects.filter(is_staff=True)
-        except User.DoesNotExist:
-            raise NotFound("User not found")
+        res['restaurnts_info'] = 
         
-        try:
-            user_users = User.objects.filter(is_staff=False)
-        except User.DoesNotExist:
-            raise NotFound("User not found")
+        naver_user, _ = User.objects.get_or_create(username='naver', is_staff=True)
+        user_users = User.objects.filter(is_staff=False)
+
         all_countries = Country.objects.values_list('name', flat=True) 
         all_reviews = Review.objects.filter(restaurant=restaurant_base)
-        all_likes_list =[]
-        for review in all_reviews:
-            likes_list = review.review_review_likes.values_list('likes__likes', flat=True)
-            all_likes_list.extend(likes_list)
-        all_likes_list = list(set(all_likes_list))
+        # all_likes_list =[]
+        # for review in all_reviews:
+        #     likes_list = review.review_review_likes.values_list('likes__likes', flat=True)
+        #     all_likes_list.extend(likes_list)
+        # all_likes_list = list(set(all_likes_list))
 
-        naver_reviews = Review.objects.filter(user__in=naver_users, restaurant=restaurant_base)
-        user_reviews = Review.objects.filter(user__in=user_users, restaurant=restaurant_base)
+        likes_restaurants = Likes_Restaurant.objects.filter(retaurant=restaurant_base).select_related('likes')
+        all_likes_list = [l_r.likes.likes for l_r in likes_restaurants]
+
+        naver_reviews = all_reviews.filter(user=naver_user)
+        user_reviews = all_reviews.exclude(user=naver_user)
+        # user_reviews = Review.objects.filter(user__in=user_users, restaurant=restaurant_base)
         
         # naver_reviews가 여러개니까 이걸 대체 몇개씩 볼건지를 정한다 -> 4개찍 naver_reviews가 저장되어있다
 
@@ -484,9 +479,9 @@ class ReviewListInfoAPIView(ListCreateAPIView):
 
         
         #self.함수로 지금 선언된 함수를 사용한다
-        naver_reviews_data = self.get_review_data(naver_reviews, restaurant_base)
+        naver_reviews_data = self.get_review_data(naver_reviews)
         # get_page(?_reviews_page로 지금 어느 페이지에 있는지를 가져온다)
-        user_reviews_data = self.get_review_data(user_reviews, restaurant_base)
+        user_reviews_data = self.get_review_data(user_reviews)
         restaurants_info = {
             'restaurant_name': restaurant_base.name,
                 'address': restaurant_base.address,
