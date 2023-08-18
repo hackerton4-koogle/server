@@ -317,6 +317,7 @@ class FoodSelectedRestaurantsAPIView(APIView):
             data = {}
             for each_restaurants in restaurants_list:
                 restaurant_data ={}
+                a = each_restaurants.name
                 if  each_restaurants.name in translated_restaurants_name:
                     each_restaurants.name = translated_restaurants_name[each_restaurants.name]
                 else:
@@ -334,11 +335,11 @@ class FoodSelectedRestaurantsAPIView(APIView):
                 restaurant_longtitude = each_restaurants.longtitude
                 distance = geopy.distance.distance((current_latitude,current_longtitude), (restaurant_latitude,restaurant_longtitude)).m                
                 restaurant_data["distance"] : distance
+                restaurant_data["다음페이지에서 넘겨줘야하는 레스토랑 이름"] : a
                 data[each_restaurants.name] = restaurant_data
+
             return Response({"data" : data})
         
-   
-
 
 #검색창
 @api_view(['GET'])
