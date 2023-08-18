@@ -234,9 +234,6 @@ class Command(BaseCommand):
         for src in sources:
             all_restaurants.extend(src().scrape())
 
-        if options['test'] is not None:
-            all_restaurants = all_restaurants[0:2]
-
         # Scrape three restaurants at a time - may have memory issue due to all image files being loaded at once
         for i in range(0, len(all_restaurants), 3):
             restaurants = all_restaurants[i:i+3]
