@@ -259,6 +259,7 @@ from Restaurants.models import *
 from Restaurants.serializers import *
 
 from Reviews.models import *
+from food.models import *
 
 # 이름, 전화번호, 주소, 오픈, 클로즈 시간, 예약 유무, 가게 사진 필요
 # 현재 내위치가 가게로 부터 몇미터 떨어져 있는지 -> 계산 필요
