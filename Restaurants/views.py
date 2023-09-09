@@ -11,7 +11,7 @@ from django.core.paginator import Paginator
 from geopy.distance import great_circle
 from django.contrib.gis.measure import Distance
 
-from Papago_API import translate_and_extract
+from translation.utils import translate
 
 from rest_framework import generics
 from rest_framework import status
@@ -254,13 +254,11 @@ translated_restaurants_name = {
     "히메시야": "Himeshia"
 }
 
-load_dotenv()
-client_id = "A1myJv4j7i0k0jVxswja" # 개발자센터에서 발급받은 Client ID 값
-client_secret = "_7xoqsu5d0" # 개발자센터에서 발급받은 Client Secret 값
-from .models import *
+
+from Restaurants.models import *
+from Restaurants.serializers import *
+
 from Reviews.models import *
-# Create your views here.
-from .serializers import *
 
 # 이름, 전화번호, 주소, 오픈, 클로즈 시간, 예약 유무, 가게 사진 필요
 # 현재 내위치가 가게로 부터 몇미터 떨어져 있는지 -> 계산 필요
@@ -272,7 +270,7 @@ def translate_data(data):
 
     for key, value in data.items():
         if isinstance(value, str):  # 문자열인 경우에만 번역 수행
-            translated_text = translate_and_extract(value)
+            translated_text = translate(value)
             translated_data[key] = translated_text if translated_text is not None else value  # 수정된 부분
         elif isinstance(value, dict):  # 중첩된 딕셔너리인 경우 재귀적으로 번역 수행
             translated_data[key] = translate_data(value)
@@ -281,34 +279,13 @@ def translate_data(data):
 
     return translated_data
 
-
-
-
-class MainpageAPIView(APIView):
-    qeuryset = Food.objects.all()
-    serializers = CategoryFoodSerializer
-    permission_classes = [AllowAny]
-    def get(self, request):
-        data ={}
-        categories = Category.objects.all()
-        for category in categories:
-            food_list = Food.objects.filter(category=category)
-            food_data = {}
-            for food_listing in food_list:
-                food_listing.name = translate_and_extract(food_listing.name)
-                food_data[food_listing.name] =food_listing.id
-            category.name = translate_and_extract(category.name)
-            data[category.name] = food_data
-        return Response({"data" : data})
-
 class FoodSelectedRestaurantsAPIView(APIView):
         queryset = Restaurant.objects.all()
         serializers = FoodSelectedRestaurantSerializer
         permission_classes = [AllowAny]
-        def get(self, request, food_ids):
-            print(food_ids) #123
+
+        def get(self, request):
             food_ids =list(map(int, food_ids.split(",")))
-            print(food_ids) #[123]
             restaurants_list = []
             for food_ids_list in food_ids:
                 selected_restaurants = Restaurant.objects.filter(restaurant_food_restaurant__food__id=food_ids_list)
@@ -321,30 +298,25 @@ class FoodSelectedRestaurantsAPIView(APIView):
             data = {}
             for each_restaurants in restaurants_list:
                 restaurant_data ={}
-                a = each_restaurants.name
                 if  each_restaurants.name in translated_restaurants_name:
                     each_restaurants.name = translated_restaurants_name[each_restaurants.name]
                 else:
-                    each_restaurants.name = translate_and_extract(each_restaurants.name)
-                restaurant_data["name"] = each_restaurants.name
-                each_restaurants.address = translate_and_extract(each_restaurants.address)
-                restaurant_data["address"] = each_restaurants.address
-                restaurant_data["phone"] = each_restaurants.phone
-
-                restaurant_data["image"] = ""
-                restaurant_data["koogle"] = each_restaurants.koogle_ranking
+                    each_restaurants.name = translate(each_restaurants.name)
+                restaurant_data["name"] : each_restaurants.name
+                each_restaurants.address = translate(each_restaurants.address)
+                restaurant_data["address"] : each_restaurants.address
+                restaurant_data["phone"] : each_restaurants.phone
+                restaurant_data["image"] : each_restaurants.image
+                restaurant_data["koogle"] : each_restaurants.koogle_ranking
                 current_latitude = 37.5508
                 current_longtitude =126.9255
             #계산
                 restaurant_latitude = each_restaurants.latitude
-                restaurant_longtitude = each_restaurants.longitude
+                restaurant_longtitude = each_restaurants.longtitude
                 distance = geopy.distance.distance((current_latitude,current_longtitude), (restaurant_latitude,restaurant_longtitude)).m                
                 restaurant_data["distance"] = distance
-                restaurant_data["다음페이지에서 넘겨줘야하는 레스토랑 이름"] = a
                 data[each_restaurants.name] = restaurant_data
-
             return Response({"data" : data})
-        
 
 #검색창
 @api_view(['GET'])
@@ -408,7 +380,7 @@ class RestaurantsBaseAPIView(APIView):
                 open_time = 'N/A'  # 또는 필요한 다른 메시지
                 close_time = 'N/A'
             
-            day =translate_and_extract(day)
+            day =translate(day)
             open_close_data[day] ={
                 'open_time' : open_time,
                 'close_time' : close_time,
@@ -433,7 +405,7 @@ class RestaurantsBaseAPIView(APIView):
         menu_detail = Menu_Detail.objects.filter(menu__in=restaurant_menu)
         menus=[]
         for detail in menu_detail:
-            detail.name = translate_and_extract(detail.name)
+            detail.name = translate(detail.name)
             detail.image.url = '' if getattr(detail.image, 'url', False) else detail.image.url
             menus.append({
                 'name' : detail.name,
@@ -450,7 +422,7 @@ class RestaurantsBaseAPIView(APIView):
         base_food = Restaurant_Food.objects.filter(restaurant=restaurant_base)
         categories =[]
         for food_relation in base_food:
-            food_relation.food.category.name = translate_and_extract(food_relation.food.category.name)
+            food_relation.food.category.name = translate(food_relation.food.category.name)
             categories.append(food_relation.food.category.name)
 
 
@@ -473,7 +445,7 @@ class RestaurantsBaseAPIView(APIView):
         for likes_info in naver_top_likes:
             likes_name = likes_info['likes__likes']
             likes_count = likes_info['like_count']
-            likes_name = translate_and_extract(likes_name)
+            likes_name = translate(likes_name)
             naver_likes_data[likes_name] = likes_count
 
         for user_user in user_users:
@@ -488,17 +460,17 @@ class RestaurantsBaseAPIView(APIView):
         for likes_info in user_top_likes:
             likes_name = likes_info['likes__likes']
             likes_count = likes_info['like_count']
-            likes_name = translate_and_extract(likes_name)
+            likes_name = translate(likes_name)
             user_likes_data[likes_name] = likes_count
         
         # 레스토랑 정보들 번역 처리
-        restaurant_base.address = translate_and_extract(restaurant_base.address),
+        restaurant_base.address = translate(restaurant_base.address),
 
         
         if restaurant_base.name in translated_restaurants_name:
             restaurant_base.name = translated_restaurants_name[restaurant_name]
         else:
-            restaurant_base.name = translate_and_extract(restaurant_base.name) 
+            restaurant_base.name = translate(restaurant_base.name) 
             
         data = {
             #이미지 파일 넣으면 postman에서 오류떠서 나중에 넣을게욤
