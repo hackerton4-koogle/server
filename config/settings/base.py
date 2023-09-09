@@ -32,17 +32,6 @@ def get_secret(setting, secret_dict=secrets):
     
 SECRET_KEY = get_secret('SECRET_KEY')
 
-
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-
-
-
-
 DJANGO_APPS =[
     'django.contrib.admin',
     'django.contrib.auth',
@@ -56,17 +45,15 @@ PROJECT_APPS=[
     'Restaurants.apps.RestaurantsConfig',
     'Reviews.apps.ReviewsConfig',
     'data_fetcher',
+    'food',
+    'translation',
 ]
 THIRD_PARTY_APPS=[
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
     'storages'
-    
-    
 ]
-# Application definition
-
 
 
 MIDDLEWARE = [

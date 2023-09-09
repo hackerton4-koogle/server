@@ -267,7 +267,7 @@ translated_restaurants_name = {
 
 client_id = "A1myJv4j7i0k0jVxswja" # 개발자센터에서 발급받은 Client ID 값
 client_secret = "_7xoqsu5d0" # 개발자센터에서 발급받은 Client Secret 값
-from Papago_API import translate_and_extract
+from translation.utils import translate
 
 # Create your views here.
 def translate_data(data):
@@ -275,7 +275,7 @@ def translate_data(data):
 
         for key, value in data.items():
             if isinstance(value, str):  # 문자열인 경우에만 번역 수행
-                translated_text = translate_and_extract(value)
+                translated_text = translate(value)
                 translated_data[key] = translated_text if translated_text else value
             elif isinstance(value, dict):  # 중첩된 딕셔너리인 경우 재귀적으로 번역 수행
                 translated_data[key] = translate_data(value)
@@ -569,4 +569,4 @@ class ReviewListInfoAPIView(ListCreateAPIView):
         if restaurant_base.name in translated_restaurants_name:
             restaurant_base.name = translated_restaurants_name[restaurant_name]
         else:
-            restaurant_base.name = translate_and_extract(restaurant_base.name) 
+            restaurant_base.name = translate(restaurant_base.name) 

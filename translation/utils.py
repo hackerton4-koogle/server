@@ -2,7 +2,7 @@ from config.settings.base import get_secret
 
 import requests
 
-def translate_and_extract(sentence, target_language='영어'):
+def translate(sentence, target_language='영어'):
     # NCP의 Papago API를 사용해 주어진 한국어 텍스트를 원하는 언어로 번역합니다. 
     # sentence: 번역하고 싶은 한국어 문장
     # target_language: 번역 결과 언어 코드
@@ -56,5 +56,5 @@ def translate_and_extract(sentence, target_language='영어'):
     
 
 if __name__ == '__main__':
-    result = translate_and_extract('파파고는 최고의 번역기입니다.')
+    result = translate('파파고는 최고의 번역기입니다.')
     print(result)
