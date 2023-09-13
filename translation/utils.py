@@ -1,6 +1,25 @@
+from django.core.exceptions import ObjectDoesNotExist
+
 from config.settings.base import get_secret
+from translation.models import Language, Original, Translation
 
 import requests
+
+def cached_translation(sentence, target_language='영어'):
+    try:
+        target_lang_instance = Language.objects.get(name=target_language)
+        korean = Language.objects.get(name='한국어')
+
+        # Try to get original text
+        original = Original.objects.get(language=korean, text=sentence)
+
+        # Try to get the translation
+        translation = Translation.objects.get(language=target_lang_instance, original=original)
+        
+        return (translation.translated, True)
+
+    except ObjectDoesNotExist:
+        return (str(), False)
 
 def translate(sentence, target_language='영어'):
     # NCP의 Papago API를 사용해 주어진 한국어 텍스트를 원하는 언어로 번역합니다. 
@@ -28,6 +47,10 @@ def translate(sentence, target_language='영어'):
     if target_language not in supported_language:
         return sentence
     
+    translation, exists = cached_translation(sentence, target_language)
+    if exists:
+        return translation
+    
     lang_code = supported_language[target_language]
     
     url = "https://naveropenapi.apigw.ntruss.com/nmt/v1/translation"
@@ -52,8 +75,6 @@ def translate(sentence, target_language='영어'):
     else:
         print(f"Error: HTTP status code {response_status_code}")
         print(response.text)
-
-    
 
 if __name__ == '__main__':
     result = translate('파파고는 최고의 번역기입니다.')
