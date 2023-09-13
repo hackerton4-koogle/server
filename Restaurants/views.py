@@ -17,11 +17,10 @@ from rest_framework import generics
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view
+
 translated_restaurants_name = {
     "로칸다몽로": "Rocanda Mongro",
     "르끄띠엘푸": "Le Petit Pou",
@@ -259,7 +258,6 @@ from Restaurants.models import *
 from Restaurants.serializers import *
 
 from Reviews.models import *
-from food.models import *
 
 # 이름, 전화번호, 주소, 오픈, 클로즈 시간, 예약 유무, 가게 사진 필요
 # 현재 내위치가 가게로 부터 몇미터 떨어져 있는지 -> 계산 필요
@@ -280,44 +278,71 @@ def translate_data(data):
 
     return translated_data
 
-class FoodSelectedRestaurantsAPIView(APIView):
+class SelectedFoodsRestaurantsView(generics.ListAPIView):
         queryset = Restaurant.objects.all()
-        serializers = FoodSelectedRestaurantSerializer
+        serializer_class = RestaurantSerializer
         permission_classes = [AllowAny]
 
-        def get(self, request):
-            food_ids =list(map(int, food_ids.split(",")))
-            restaurants_list = []
-            for food_ids_list in food_ids:
-                selected_restaurants = Restaurant.objects.filter(restaurant_food_restaurant__food__id=food_ids_list)
-                print(selected_restaurants)
-                for rest in selected_restaurants:
-                    print(rest)
-                    restaurants_list.append(rest)
-            restaurants_list = list(set(restaurants_list))
-            # 레스토랑 이름, 주소, 번호, 거리, 쿠글
-            data = {}
-            for each_restaurants in restaurants_list:
-                restaurant_data ={}
-                if  each_restaurants.name in translated_restaurants_name:
-                    each_restaurants.name = translated_restaurants_name[each_restaurants.name]
-                else:
-                    each_restaurants.name = translate(each_restaurants.name)
-                restaurant_data["name"] : each_restaurants.name
-                each_restaurants.address = translate(each_restaurants.address)
-                restaurant_data["address"] : each_restaurants.address
-                restaurant_data["phone"] : each_restaurants.phone
-                restaurant_data["image"] : each_restaurants.image
-                restaurant_data["koogle"] : each_restaurants.koogle_ranking
-                current_latitude = 37.5508
-                current_longtitude =126.9255
-            #계산
-                restaurant_latitude = each_restaurants.latitude
-                restaurant_longtitude = each_restaurants.longtitude
-                distance = geopy.distance.distance((current_latitude,current_longtitude), (restaurant_latitude,restaurant_longtitude)).m                
-                restaurant_data["distance"] = distance
-                data[each_restaurants.name] = restaurant_data
-            return Response({"data" : data})
+        allowed_sort_criteria = ['distance', 'rating', 'review']
+        default_location = (37.5508, 126.9255)
+
+        def get_serializer_context(self):
+            """
+            Extra context provided to the serializer class.
+            """
+            return {
+                'request': self.request,
+                'user_y' : float(self.request.query_params.get('y', self.default_location[0])),
+                'user_x' : float(self.request.query_params.get('x', self.default_location[1])),
+            }
+        
+        def get_queryset(self):
+            sort_criteria = self.request.query_params.get('sort')
+
+            # Get list of Food ids from query parameter and convert them into list.
+            food_ids = self.request.query_params.get('food_ids')
+            food_ids = [int(id) for id in food_ids.split(',')]
+
+            # Fetch all restaurants related to these food items.
+            queryset = Restaurant.objects.filter(restaurant_food_restaurant__food__id__in=food_ids)
+
+            if sort_criteria == "distance":
+                queryset = list(queryset)
+
+                user_y = float(self.request.query_params.get('y', self.default_location[0]))
+                user_x = float(self.request.query_params.get('x', self.default_location[1]))
+
+                queryset.sort(key=lambda x: geopy.distance.distance((x.latitude,x.longitude),(user_y, user_x)).m)
+            elif sort_criteria == "rating":
+                queryset = queryset.order_by('-koogle_ranking')
+            elif sort_criteria == "review":
+                queryset = queryset.annotate(review_count=Count('review_restaurant')).order_by('-review_count')
+
+            return queryset
+        
+        def list(self, request, *args, **kwargs):
+            # Get sort criteria from query parameters. If it doesn't exist or is invalid,
+            # respond with an error.
+            sort_criteria = self.request.query_params.get('sort')
+            if sort_criteria is None or sort_criteria not in self.allowed_sort_criteria:
+                return Response({"error": "Invalid or missing sort criteria. Must be one of: " + ', '.join(self.allowed_sort_criteria)}, status=status.HTTP_400_BAD_REQUEST)
+            
+            food_ids = self.request.query_params.get('food_ids')
+            if food_ids is None:
+                return Response({"error": "Missing food_ids query parameter"}, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                [int(id) for id in food_ids.split(',')]
+            except ValueError:
+                return Response({"error": "Invalid food_ids query parameter. Must be a comma separated list of integers"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                user_y = float(self.request.query_params.get('y', self.default_location[0]))
+                user_x = float(self.request.query_params.get('x', self.default_location[1]))
+            except ValueError:
+                return Response({"error": "Invalid y or x query parameter. Must be a float"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            return super().list(request, *args, **kwargs)
 
 #검색창
 @api_view(['GET'])
