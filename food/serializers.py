@@ -13,7 +13,7 @@ class FoodSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['name'] = translate(ret['name'])
+        ret['name'] = translate(ret['name']).title()
 
         return ret
 
@@ -29,6 +29,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        ret['name'] = translate(ret['name'])
+        ret['name'] = translate(ret['name']).title()
 
         return ret
