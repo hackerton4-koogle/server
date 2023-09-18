@@ -190,8 +190,6 @@ class NaverScraper:
 
         for (naver_key, key) in self.list_result_conversion.items():
             res[key] = place[naver_key]
-            if naver_key == 'id': 
-                res[key] = res[key][1:] # drop first letter
             
         return res
     
