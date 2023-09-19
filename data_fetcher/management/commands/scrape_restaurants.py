@@ -160,7 +160,10 @@ class Command(BaseCommand):
                 restaurant['naver'].update(reviews_likes)
 
                 break
-        
+
+        # remove restaurants that failed search = does not have 'naver' key
+        restaurants = [d for d in restaurants if 'naver' in d]
+
         restaurant_instances = []
 
         self.stdout.write(self.style.NOTICE(f'Add restaurants to database'))
