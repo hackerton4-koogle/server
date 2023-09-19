@@ -33,7 +33,7 @@ class Restaurant(models.Model):
     longitude= models.FloatField(max_length=100, null=False)
     koogle_ranking = models.IntegerField(verbose_name="koogle_ranking", default=0)
     reservation = models.BooleanField(verbose_name="reservation", default=False)
-    reservation_link = models.URLField(verbose_name="reservation_url", null=True, blank=True, unique=True)
+    reservation_link = models.URLField(verbose_name="reservation_url", blank=True)
     def __str__(self):
 
         return self.name
